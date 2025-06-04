@@ -1,9 +1,10 @@
 # Environment config
 .env
 
-# Postman / reference files
+# Postman / reference files / avatar PNG images
 *.pdf
 *.json
+*.png
 
 # Python cache
 __pycache__/
