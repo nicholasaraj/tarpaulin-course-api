@@ -1,0 +1,16 @@
+# Environment config
+.env
+
+# Postman / reference files
+*.pdf
+*.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+
+# VSCode project settings (optional)
+.vscode/
