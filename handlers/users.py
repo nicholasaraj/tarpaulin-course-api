@@ -46,18 +46,18 @@ def get_all_users():
     sub = payload['sub']
 
     client = datastore.Client()
-    key = client.key('users', sub)
-    user = client.get(key)
+
+    # ✅ Pull all users and match on sub manually
+    query = client.query(kind='users')
+    users = list(query.fetch())
+
+    user = next((u for u in users if u['sub'] == sub), None)
 
     if not user or user.get('role') != 'admin':
         raise AuthError({
             "code": "forbidden",
             "description": "You don't have permission on this resource"
         }, 403)
-
-    # fetch all users
-    query = client.query(kind='users')
-    users = list(query.fetch())
 
     result = [{
         "id": u.key.id,
@@ -75,26 +75,29 @@ def get_user(user_id):
 
     client = datastore.Client()
 
-    # 🔍 Fetch the user by numeric ID (not sub)
+    # ✅ Fetch user by numeric ID
     key = client.key('users', user_id)
     user = client.get(key)
     if not user:
         return jsonify({"Error": "Not found"}), 404
 
-    # 🔐 Check if requester is the same user or admin
-    requester_key = client.key('users', requester_sub)
-    requester = client.get(requester_key)
+    # ✅ Fetch all users, find requester by sub
+    requester = next(
+        (u for u in client.query(kind='users').fetch() if u['sub'] == requester_sub),
+        None
+    )
+
     if not requester or (requester['role'] != 'admin' and requester_sub != user['sub']):
         return jsonify({"Error": "You don't have permission on this resource"}), 403
 
-    # 🧱 Build response
+    # 📦 Build result
     result = {
         "id": user_id,
         "sub": user['sub'],
         "role": user['role']
     }
 
-    # 🖼️ Add avatar_url if avatar exists
+    # 🖼️ Add avatar_url if it exists
     from google.cloud import storage
     bucket_name = os.getenv("GCS_BUCKET_NAME")
     if bucket_name:
@@ -105,18 +108,23 @@ def get_user(user_id):
         if blob.exists():
             result["avatar_url"] = f"http://localhost:8080/users/{user_id}/avatar"
 
-    # 📘 Add course URLs if student or instructor
-    if user['role'] in ['student', 'instructor']:
-        course_query = client.query(kind='courses')
-        if user['role'] == 'student':
-            course_query.add_filter('students', '=', user_id)
-        else:
-            course_query.add_filter('instructor_id', '=', user_id)
-
-        course_links = [
-            f"http://localhost:8080/courses/{course.key.id}"
-            for course in course_query.fetch()
+    # 📘 Always add "courses" if student or instructor — even if empty
+    if user['role'] == 'instructor':
+        query = client.query(kind='courses')
+        course_urls = [
+            f"http://localhost:8080/courses/{c.key.id}"
+            for c in query.fetch()
+            if c.get('instructor_id') == user_id
         ]
-        result["courses"] = course_links
+        result["courses"] = course_urls
+
+    elif user['role'] == 'student':
+        query = client.query(kind='courses')
+        course_urls = [
+            f"http://localhost:8080/courses/{c.key.id}"
+            for c in query.fetch()
+            if user_id in c.get('students', [])
+        ]
+        result["courses"] = course_urls
 
     return jsonify(result), 200

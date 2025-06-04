@@ -48,22 +48,34 @@ def get_id_token(email):
 def get_sub_from_token(id_token):
     return jwt.get_unverified_claims(id_token)['sub']
 
+users_to_create = [
+    ("admin1@osu.com", "admin"),
+    ("instructor1@osu.com", "instructor"),
+    ("instructor2@osu.com", "instructor"),
+    ("student1@osu.com", "student"),
+    ("student2@osu.com", "student"),
+    ("student3@osu.com", "student"),
+    ("student4@osu.com", "student"),
+    ("student5@osu.com", "student"),
+    ("student6@osu.com", "student"),
+]
+
 def seed():
     client = datastore.Client()
-    for email, role in users_to_create:
+    for i, (email, role) in enumerate(users_to_create, start=1):  # 👈 1 through 9
         print(f"Creating {email}...")
 
         id_token = get_id_token(email)
         sub = get_sub_from_token(id_token)
 
-        key = client.key('users', sub)  # Use sub as the key
+        key = client.key('users', i)  # 👈 numeric key = 1 through 9
         entity = datastore.Entity(key=key)
         entity.update({
             'sub': sub,
             'role': role
         })
         client.put(entity)
-        print(f"  -> Added with sub as key: {sub}")
+        print(f"  -> Added {role} with sub: {sub} and id: {entity.key.id}")
 
 if __name__ == "__main__":
     seed()

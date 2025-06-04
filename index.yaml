@@ -1,5 +1,5 @@
 indexes:
-- kind: users
+- kind: courses
   properties:
-  - name: sub
+  - name: instructor_id
     direction: asc
