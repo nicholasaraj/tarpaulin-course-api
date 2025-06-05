@@ -1,5 +1,6 @@
 indexes:
+
 - kind: courses
   properties:
-  - name: instructor_id
-    direction: asc
+    - name: subject
+      direction: asc

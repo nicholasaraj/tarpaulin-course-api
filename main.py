@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
 from utils import AuthError
 from handlers.users import users_bp
+from handlers.courses import courses_bp
 
 app = Flask(__name__)
 app.register_blueprint(users_bp)
+app.register_blueprint(courses_bp)
 
 @app.errorhandler(AuthError)
 def handle_auth_error(e):
