@@ -4,6 +4,7 @@ from google.cloud import datastore
 from dotenv import load_dotenv
 from jose import jwt
 
+# Load environment variables from .env file
 load_dotenv()
 
 AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
@@ -11,6 +12,7 @@ CLIENT_ID = os.getenv('AUTH0_CLIENT_ID')
 CLIENT_SECRET = os.getenv('AUTH0_CLIENT_SECRET')
 PASSWORD = os.getenv('USER_PASSWORD')
 
+# List of (email, role) tuples for the 9 required users
 users_to_create = [
     ("admin1@osu.com", "admin"),
     ("instructor1@osu.com", "instructor"),
@@ -23,6 +25,7 @@ users_to_create = [
     ("student6@osu.com", "student"),
 ]
 
+# Request an ID token from Auth0 for a given user's credentials
 def get_id_token(email):
     url = f"https://{AUTH0_DOMAIN}/oauth/token"
     payload = {
@@ -44,36 +47,28 @@ def get_id_token(email):
         print("Response JSON:", resp.json())
         raise
 
-
+# Extract the sub claim from the ID token
 def get_sub_from_token(id_token):
     return jwt.get_unverified_claims(id_token)['sub']
 
-users_to_create = [
-    ("admin1@osu.com", "admin"),
-    ("instructor1@osu.com", "instructor"),
-    ("instructor2@osu.com", "instructor"),
-    ("student1@osu.com", "student"),
-    ("student2@osu.com", "student"),
-    ("student3@osu.com", "student"),
-    ("student4@osu.com", "student"),
-    ("student5@osu.com", "student"),
-    ("student6@osu.com", "student"),
-]
-
+# Seed the Datastore with the 9 users
 def seed():
     client = datastore.Client()
-    for i, (email, role) in enumerate(users_to_create, start=1):  # 👈 1 through 9
+    for i, (email, role) in enumerate(users_to_create, start=1):  # user IDs = 1 through 9
         print(f"Creating {email}...")
 
         id_token = get_id_token(email)
         sub = get_sub_from_token(id_token)
 
-        key = client.key('users', i)  # 👈 numeric key = 1 through 9
+        # Create a new user entity with a numeric ID
+        key = client.key('users', i)
         entity = datastore.Entity(key=key)
         entity.update({
             'sub': sub,
             'role': role
         })
+
+        # Save to Datastore
         client.put(entity)
         print(f"  -> Added {role} with sub: {sub} and id: {entity.key.id}")
 

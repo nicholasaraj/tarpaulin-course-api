@@ -1,6 +1,0 @@
-indexes:
-
-- kind: courses
-  properties:
-    - name: subject
-      direction: asc
