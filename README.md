@@ -32,8 +32,6 @@ A fully-featured RESTful API for a lightweight course management system deployed
 - `instructor1@osu.com`, `instructor2@osu.com` – can view and manage their own courses
 - `student1@osu.com` through `student6@osu.com` – can view enrolled courses
 
-> All users share the same password in testing. Password is defined in the Postman environment.
-
 ---
 
 ## Endpoints Overview
