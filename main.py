@@ -1,9 +1,3 @@
-# CS 493
-# Nicholas Araj
-# Assignment #6
-# 06/06/2025
-# This is the main.py for Assignment 6 - Tarpaulin Course Management Tool.
-
 from flask import Flask, jsonify
 from utils import AuthError
 from handlers.users import users_bp
