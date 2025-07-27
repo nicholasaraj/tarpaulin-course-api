@@ -36,12 +36,19 @@ A fully-featured RESTful API for a lightweight course management system deployed
 
 ## Endpoints Overview
 
-| Endpoint | Method | Role | Description |
-|---------|--------|------|-------------|
-| `/users/login` | POST | All | Auth0 login → returns JWT |
-| `/users` | GET | Admin | Get all users |
-| `/users/:id` | GET | Admin/User | Get user details + enrolled/assigned courses |
-| `/users/:id/avatar` | POST/GET/DELETE | User | Manage avatar via GCS |
-| `/courses` | GET/POST | Public/Admin | View or create courses |
-| `/courses/:id` | GET/PATCH/DELETE | Public/Admin | Manage individual course |
-| `/courses/:id/students` | PATCH/GET | Admin/Instructor | Enroll or list enrolled students |
+| Endpoint                      | Method        | Role              | Description                                  |
+|------------------------------|---------------|-------------------|----------------------------------------------|
+| `/users/login`               | POST          | All               | Auth0 login → returns JWT                    |
+| `/users`                     | GET           | Admin             | Get all users (no avatars or course info)    |
+| `/users/:id`                 | GET           | Admin / User      | Get user details + avatar + courses          |
+| `/users/:id/avatar`          | POST          | User              | Upload user avatar to Google Cloud Storage   |
+| `/users/:id/avatar`          | GET           | User              | Retrieve user avatar from Google Cloud       |
+| `/users/:id/avatar`          | DELETE        | User              | Delete user avatar from Google Cloud         |
+| `/courses`                   | POST          | Admin             | Create a new course                          |
+| `/courses`                   | GET           | Public            | View all courses (paginated, no enrollment)  |
+| `/courses/:id`               | GET           | Public            | View a specific course (no enrollment)       |
+| `/courses/:id`               | PATCH         | Admin             | Partially update a course                    |
+| `/courses/:id`               | DELETE        | Admin             | Delete a course and its enrollment links     |
+| `/courses/:id/students`      | PATCH         | Admin / Instructor| Enroll or disenroll students in a course     |
+| `/courses/:id/students`      | GET           | Admin / Instructor| Get all students enrolled in a course        |
+
